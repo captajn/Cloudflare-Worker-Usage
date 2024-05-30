@@ -8,7 +8,6 @@
 PHP/Json code allows you to query request volume/day from Cloudflare. By default, Cloudflare will give us 100k requests/day for all existing workers
 
 ### Create API Token, Setup Environment Variables
-
 1. Access [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) to get Global API Key
 2. Access [Cloudflare Dashboard](https://dash.cloudflare.com/) you will see ACCOUNT_ID on url browser
 3. Access [Cloudflare Dashboard](https://dash.cloudflare.com/), select Worker & Pages, select Create Application > Create Worker (fill in your desired name) then press Deploy, you will get URL Worker to access later
@@ -17,18 +16,22 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 ![Setup Variable và Encrypt](images/encrypt-variable.png)
 
 ### With JSON
-
 1. Copy the cloudflare.json file and paste to your Cloudflare Worker
 2. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ### With PHP
-
-To use this project, follow these steps:
-
 1. Install php 8.1+curl+Nginx on your vps if you don't have it yet. Hosting often support PHP, not need to install
 2. [ACCOUNT_ID, API_KEY read Create API Token, Setup Environment Variables](#create-api-token-setup-environment-variables)
 4. Modify the cloudflare.php information in the lines $api_email,$api_key,$account_id,$bot_token,$chat_id
-5. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.phpp
+5. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.php
+
+### With Github Action
+1. Fork this repo to your account
+2. Enter your repository github - Settings - Secrets and variables - Action > Repository secrets
+3. Create 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
+4. Example
+![Tạo biến và bảo mật](images/github-action.png)
+5. Run Github Action > Cloudflare API Usage
 
 ## Tiếng Việt
 
@@ -51,3 +54,11 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 ### Đối với file json
 1. Sao chép toàn bộ tập tin json và dán vào worker bạn vừa tạo ở trên
 2. Mở trình duyệt bằng url worker của bạn và tận hưởng
+
+### Chạy với Github Action
+1. Fork repo này vào tài khoản của bạn
+2. Vào repository của bạn Settings - Secrets and variables - Action > Repository secrets
+3. Tạo 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
+4. Hình minh hoạ
+![Tạo biến và bảo mật](images/github-action.png)
+5. Chạy Github Action > Cloudflare API Usage và tận hưởng

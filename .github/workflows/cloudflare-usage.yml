@@ -2,7 +2,11 @@ name: Cloudflare API Usage
 
 on:
   schedule:
+<<<<<<< HEAD
     - cron: '50 1 * * *'  # Chạy cron job vào lúc 01:50 mỗi ngày
+=======
+    - cron: '25 1 * * *'  # Chạy cron job vào lúc 01:25 mỗi ngày
+>>>>>>> c57baa45c45407a417add3c2904caf38ff024d69
     - cron: '0 10 * * *'  # Chạy cron job vào lúc 10:00 mỗi ngày
     - cron: '0 17 * * *'  # Chạy cron job vào lúc 17:00 mỗi ngày
     - cron: '0 22 * * *'  # Chạy cron job vào lúc 22:00 mỗi ngày
@@ -122,6 +126,7 @@ jobs:
             exit 1
           fi
 
+<<<<<<< HEAD
           echo "Message sent successfully!"
 
       - name: Send Animated Sticker
@@ -136,3 +141,6 @@ jobs:
           fi
 
           echo "Sticker sent successfully!"
+=======
+          echo "Message sent successfully!"  # In ra thông báo gửi tin nhắn thành công
+>>>>>>> c57baa45c45407a417add3c2904caf38ff024d69

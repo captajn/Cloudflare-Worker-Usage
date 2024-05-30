@@ -2,7 +2,10 @@ name: Cloudflare API Usage
 
 on:
   schedule:
-    - cron: '0 19,20,22 * * *' # Chạy cron job vào các giờ 19:00, 20:00, 22:00 mỗi ngày
+  - cron: '12 0 * * *' # Chạy cron job vào lúc 00:20 mỗi ngày
+  - cron: '0 10 * * *' # Chạy cron job vào lúc 10:00 mỗi ngày
+  - cron: '0 17 * * *' # Chạy cron job vào lúc 17:00 mỗi ngày
+  - cron: '0 22 * * *' # Chạy cron job vào lúc 22:00 mỗi ngày
   workflow_dispatch:
 
 jobs:
@@ -80,7 +83,7 @@ jobs:
             -H 'Content-Type: application/json' \
             -H "X-Auth-Email: $API_EMAIL" \
             -H "X-Auth-Key: $API_KEY" \
-            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --argjson filter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson overviewFilter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson durableObjectFilter "{datetimeHour_geq: \$startDate, datetimeHour_leq: \$endDate}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --argjson filter "{\"datetime_geq\": \$startDate, \"datetime_leq\": \$endDate}" --argjson overviewFilter "{\"datetime_geq\": \$startDate, \"datetime_leq\": \$endDate}" --argjson durableObjectFilter "{\"datetimeHour_geq\": \$startDate, \"datetimeHour_leq\": \$endDate}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
 
           echo "Cloudflare API Response: $RESPONSE"
 

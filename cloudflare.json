@@ -5,12 +5,6 @@ addEventListener('fetch', event => {
 const dailyLimit = 100000; // Giới hạn hàng ngày cố định
 const sendTimes = ['Gửi Ngay', '19:00', '20:00', '22:00']; // Thời gian gửi trong ngày (giờ phút)
 
-const apiEmail = 'your-api-email@example.com';
-const apiKey = 'your-api-key';
-const accountId = 'your-account-id';
-const botToken = 'your-bot-token';
-const chatId = 'your-chat-id';
-
 async function handleRequest(request) {
   try {
     if (request.method === 'POST') {
@@ -81,13 +75,13 @@ async function handleRequest(request) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Auth-Email': apiEmail,
-            'X-Auth-Key': apiKey,
+            'X-Auth-Email': API_EMAIL,
+            'X-Auth-Key': API_KEY,
           },
           body: JSON.stringify({
             query: query,
             variables: {
-              accountTag: accountId,
+              accountTag: ACCOUNT_ID,
               filter: filter,
               overviewFilter: overviewFilter,
               durableObjectFilter: durableObjectFilter,
@@ -124,7 +118,7 @@ async function handleRequest(request) {
           const message = `Dữ liệu truy vấn lúc: ${formattedDate}\nSố lượng truy vấn: ${requests} / ${dailyLimit}\nPhần trăm sử dụng: ${usagePercentage.toFixed(2)}%`;
 
           if (sendTime === 'Gửi Ngay') {
-            const telegramResponse = await sendTelegramMessage(botToken, chatId, message);
+            const telegramResponse = await sendTelegramMessage(BOT_TOKEN, CHAT_ID, message);
             if (!telegramResponse.ok) {
               throw new Error('Failed to send Telegram message.');
             }
@@ -212,15 +206,15 @@ function renderForm(data = {}) {
                     <h2>Truy Vấn</h2>
                     <div class="form-group">
                         <label for="apiEmail">API Email</label>
-                        <input type="email" class="form-control" id="apiEmail" name="apiEmail" value="${obfuscate(apiEmail)}" readonly>
+                        <input type="email" class="form-control" id="apiEmail" name="apiEmail" value="${obfuscate(API_EMAIL)}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="apiKey">API Key</label>
-                        <input type="text" class="form-control" id="apiKey" name="apiKey" value="${obfuscate(apiKey)}" readonly>
+                        <input type="text" class="form-control" id="apiKey" name="apiKey" value="${obfuscate(API_KEY)}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="accountId">Account ID</label>
-                        <input type="text" class="form-control" id="accountId" name="accountId" value="${obfuscate(accountId)}" readonly>
+                        <input type="text" class="form-control" id="accountId" name="accountId" value="${obfuscate(ACCOUNT_ID)}" readonly>
                     </div>
                     <input type="hidden" name="action" value="query">
                     <button type="submit" class="btn btn-primary" name="query">Truy Vấn</button>
@@ -243,11 +237,11 @@ function renderForm(data = {}) {
                     <h2>Send Telegram</h2>
                     <div class="form-group">
                         <label for="botToken">Bot Token</label>
-                        <input type="text" class="form-control" id="botToken" name="botToken" value="${obfuscate(botToken)}" readonly>
+                        <input type="text" class="form-control" id="botToken" name="botToken" value="${obfuscate(BOT_TOKEN)}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="chatId">Chat ID</label>
-                        <input type="text" class="form-control" id="chatId" name="chatId" value="${obfuscate(chatId)}" readonly>
+                        <input type="text" class="form-control" id="chatId" name="chatId" value="${obfuscate(CHAT_ID)}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="sendTime">Chọn khung giờ gửi</label>

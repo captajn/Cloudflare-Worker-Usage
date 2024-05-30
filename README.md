@@ -60,3 +60,7 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 2. Sao chép toàn bộ tập tin json và dán vào worker bạn vừa tạo
 3. Truy cập Worker bạn đã tạo, vào mục Setting > Variable name tạo 5 biến tên API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID và điền vào giá trị cột Value
 4. Mở trình duyệt bằng url worker tự động của Cloudflare khi bạn đặt tên và Deloy xong
+
+## Ảnh cách tạo Variable và Encrypt (bảo mậT)
+
+![A descriptive alt text](images/image.png)

@@ -8,22 +8,30 @@
 
 PHP/Json code allows you to query request volume/day from Cloudflare. By default, Cloudflare will give us 100k requests/day for all existing workers
 
-### Installation
+### Create API Token, Setup Environment Variables
 
-To install you need a vps/hosting that supports PHP/Json:
-1. Download the cloudflare.php or cloudflare.json file based on the programming language you want.
-2. Upload files to your server/vps.
-3. Then access.
+1. Access [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) to get Global API Key
+2. Access [Cloudflare Dashboard](https://dash.cloudflare.com/) you will see ACCOUNT_ID on url browser
+3. Access [Cloudflare Dashboard](https://dash.cloudflare.com/), select Worker & Pages, select Create Application > Create Worker (fill in your desired name) then press Deploy, you will get URL Worker to access later
+4. On name Worker you created, click Settings - Variable - Environment Variables, create 5 variables named API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID and fill in the Value column. Remember click button Encrypt
+5. Variable và Encrypt
+![Setup Variable và Encrypt](images/encrypt-variable.png)
+6. Copy the cloudflare.json file and paste to your Cloudflare Worker
+7. Open the browser with your worker url and try
+
+### With JSON
+
+1. Copy the cloudflare.json file and paste to your Cloudflare Worker
+2. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ### With PHP
 
-
 To use this project, follow these steps:
-1. Install php on your vps/hosting if you don't have it yet.
-2. Access https://dash.cloudflare.com/profile/api-tokens to see Global API Key
-3. Acesss https://dash.cloudflare.com/account_id/workers-and-pages you will see accountid before /workers-and-pages
-4. Modify the necessary information in the lines $api_email,$api_key,$account_id,$bot_token,$chat_id
-5. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.php
+
+1. Install php 8.1+curl+Nginx on your vps if you don't have it yet. Hosting often support PHP, not need to install
+2. [ACCOUNT_ID, API_KEY read Create API Token, Setup Environment Variables](#create-api-token-setup-environment-variables)
+4. Modify the cloudflare.php information in the lines $api_email,$api_key,$account_id,$bot_token,$chat_id
+5. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.phpp
 
 ### With Json
 

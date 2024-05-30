@@ -19,8 +19,10 @@ To install you need a vps/hosting that supports PHP/Json:
 
 To use this project, follow these steps:
 1. Install php on your vps/hosting if you don't have it yet.
-2. Modify the necessary information in the lines $api_email,$api_key,$account_id,$bot_token,$chat_id
-3. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.php
+2. Access https://dash.cloudflare.com/profile/api-tokens to see Global API Key
+3. Acesss https://dash.cloudflare.com/account_id/workers-and-pages you will see accountid before /workers-and-pages
+4. Modify the necessary information in the lines $api_email,$api_key,$account_id,$bot_token,$chat_id
+5. Open your browser and access the file as ip/cloudflare.php or domain/cloudflare.php
 
 ## With Json
 
@@ -48,8 +50,10 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 
 Để sử dụng dự án này, hãy làm theo các bước sau:
 1. Cài đặt php trên vps/hosting của bạn nếu chưa có.
-2. Sửa đổi các thông tin cần thiết trong các dòng $api_email,$api_key,$account_id,$bot_token,$chat_id
-3. Mở trình duyệt của bạn và truy cập file theo dạng ip/cloudflare.php.
+2. Truy cập https://dash.cloudflare.com/profile/api-tokens để lấy Global API Key
+3. Truy cập https://dash.cloudflare.com/account_id/workers-and-pages bạn sẽ thấy accountid là dãy số chữ trước /workers-and-pages
+4. Sửa đổi các thông tin cần thiết trong các dòng $api_email,$api_key,$account_id,$bot_token,$chat_id
+5. Mở trình duyệt của bạn và truy cập file theo dạng ip/cloudflare.php.
 
 ## Đối với file json
 

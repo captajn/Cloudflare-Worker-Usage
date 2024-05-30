@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Query Cloudflare API and Send Telegram Message
         run: |
@@ -76,6 +76,8 @@ jobs:
             -H "X-Auth-Email: $API_EMAIL" \
             -H "X-Auth-Key: $API_KEY" \
             --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --argjson filter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson overviewFilter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson durableObjectFilter "{datetimeHour_geq: \$startDate, datetimeHour_leq: \$endDate}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+
+          echo "Cloudflare API Response: $RESPONSE"
 
           REQUESTS=$(echo $RESPONSE | jq '.data.viewer.accounts[0].workersInvocationsAdaptive[0].sum.requests // 0')
           USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)

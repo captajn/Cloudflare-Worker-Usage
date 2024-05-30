@@ -117,7 +117,7 @@ jobs:
 
           # Định dạng ngày giờ và tin nhắn
           FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")
-          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n🚦 Số lượng truy vấn: %d / %d\n🧮 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
+          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n✅ Số lượng truy vấn: %d / %d\n💯 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
           ENCODED_MESSAGE=$(echo "$MESSAGE" | jq -sRr @uri)
 
           # Gửi tin nhắn tới Telegram

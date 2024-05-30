@@ -79,7 +79,17 @@ jobs:
 
           echo "Cloudflare API Response: $RESPONSE"
 
+          if [ "$(echo $RESPONSE | jq -r '.data.viewer.accounts | length')" -eq 0 ]; then
+            echo "No accounts data found. Please check your ACCOUNT_ID."
+            exit 1
+          fi
+
           REQUESTS=$(echo $RESPONSE | jq '.data.viewer.accounts[0].workersInvocationsAdaptive[0].sum.requests // 0')
+          if [ "$REQUESTS" == "null" ]; then
+            echo "No request data found. Please check your query and ensure there is data in the specified time range."
+            exit 1
+          fi
+
           USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)
 
           FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")

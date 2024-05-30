@@ -28,8 +28,8 @@ To use this project, follow these steps:
 ### With Json
 
 1. Visit https://dash.cloudflare.com/ select Worker & Pages, select Create Application > Create Worker (fill in your desired name) then press Deploy
-2. Copy the entire json file and paste to your worker
-3. Access the Worker you created, go to Settings > Variable names, create 5 variables named API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID and fill in the Value column
+2. Copy the entire json file and paste to your Cloudflare Worker
+3. Access the Worker you created, go to Settings > Variable names, create 5 variables named API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID and fill in the Value column. Remember click button Encrypt
 4. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ## Tiếng Việt
@@ -61,6 +61,6 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 3. Truy cập Worker bạn đã tạo, vào mục Setting > Variable name tạo 5 biến tên API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID và điền vào giá trị cột Value
 4. Mở trình duyệt bằng url worker tự động của Cloudflare khi bạn đặt tên và Deloy xong
 
-## Ảnh cách tạo Variable và Encrypt (bảo mậT)
+## Ảnh cách tạo Variable và Encrypt (Bảo Mật)
 
-![A descriptive alt text](images/image.png)
+![A descriptive alt text](images/encrypt-variable.png)

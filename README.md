@@ -28,8 +28,9 @@ To use this project, follow these steps:
 ### With Json
 
 1. Visit https://dash.cloudflare.com/ select Worker & Pages, select Create Application > Create Worker (fill in your desired name) then press Deploy
-2. Copy the entire json file and edit your const information apiEmail,apiKey,accountId,botToken,chatId
-3. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
+2. Copy the entire json file and paste to your worker
+3. Access the Worker you created, go to Settings > Variable names, create 5 variables named API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID and fill in the Value column
+4. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ## Tiếng Việt
 
@@ -56,5 +57,6 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 ### Đối với file json
 
 1. Truy cập https://dash.cloudflare.com/ chọn Worker & Pages, chọn Create Application > Create Worker(điền tên tuỳ thích) sau đó ấn Deploy
-2. Sao chép toàn bộ tập tin json và sửa lại các thông tin const apiEmail,apiKey,accountId,botToken,chatId của bạn
-3. Mở trình duyệt bằng url worker tự động của Cloudflare khi bạn đặt tên và Deloy xong
+2. Sao chép toàn bộ tập tin json và dán vào worker bạn vừa tạo
+3. Truy cập Worker bạn đã tạo, vào mục Setting > Variable name tạo 5 biến tên API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID và điền vào giá trị cột Value
+4. Mở trình duyệt bằng url worker tự động của Cloudflare khi bạn đặt tên và Deloy xong

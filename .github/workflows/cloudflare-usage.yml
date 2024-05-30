@@ -2,10 +2,10 @@ name: Cloudflare API Usage
 
 on:
   schedule:
-  - cron: '12 0 * * *' # Chạy cron job vào lúc 00:20 mỗi ngày
-  - cron: '0 10 * * *' # Chạy cron job vào lúc 10:00 mỗi ngày
-  - cron: '0 17 * * *' # Chạy cron job vào lúc 17:00 mỗi ngày
-  - cron: '0 22 * * *' # Chạy cron job vào lúc 22:00 mỗi ngày
+    - cron: '12 0 * * *'  # Chạy cron job vào lúc 00:12 mỗi ngày
+    - cron: '0 19 * * *'  # Chạy cron job vào lúc 19:00 mỗi ngày
+    - cron: '0 20 * * *'  # Chạy cron job vào lúc 20:00 mỗi ngày
+    - cron: '0 22 * * *'  # Chạy cron job vào lúc 22:00 mỗi ngày
   workflow_dispatch:
 
 jobs:
@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3 # Sử dụng phiên bản mới nhất của actions/checkout
+        uses: actions/checkout@v4  # Cập nhật để dùng Node.js 20
 
       - name: Set up Node.js 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4  # Cập nhật để dùng Node.js 20
         with:
           node-version: '20'
 
@@ -36,11 +36,10 @@ jobs:
           START_DATE=$(echo $DATE | sed 's/T.*//')T00:00:00.000Z
           END_DATE=$(echo $DATE)
 
-          QUERY=$(cat <<EOF
-          query getBillingMetrics(\$accountTag: String!, \$filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, \$overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
+          QUERY='query getBillingMetrics($accountTag: String!, $filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, $overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
             viewer {
-              accounts(filter: {accountTag: \$accountTag}) {
-                workersInvocationsAdaptive(limit: 10000, filter: \$filter) {
+              accounts(filter: {accountTag: $accountTag}) {
+                workersInvocationsAdaptive(limit: 10000, filter: $filter) {
                   sum {
                     duration
                     requests
@@ -55,7 +54,7 @@ jobs:
                     usageModel
                   }
                 }
-                workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: \$overviewFilter) {
+                workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: $overviewFilter) {
                   sum {
                     cpuTimeUs
                   }
@@ -63,27 +62,25 @@ jobs:
                     usageModel
                   }
                 }
-                durableObjectsInvocationsAdaptiveGroups(limit: 10000, filter: \$durableObjectFilter) {
+                durableObjectsInvocationsAdaptiveGroups(limit: 10000, filter: $durableObjectFilter) {
                   sum {
                     requests
                   }
                 }
-                durableObjectsPeriodicGroups(limit: 10000, filter: \$durableObjectFilter) {
+                durableObjectsPeriodicGroups(limit: 10000, filter: $durableObjectFilter) {
                   sum {
                     activeTime
                   }
                 }
               }
             }
-          }
-          EOF
-          )
+          }'
 
           RESPONSE=$(curl -s -X POST 'https://api.cloudflare.com/client/v4/graphql' \
             -H 'Content-Type: application/json' \
             -H "X-Auth-Email: $API_EMAIL" \
             -H "X-Auth-Key: $API_KEY" \
-            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --argjson filter "{\"datetime_geq\": \$startDate, \"datetime_leq\": \$endDate}" --argjson overviewFilter "{\"datetime_geq\": \$startDate, \"datetime_leq\": \$endDate}" --argjson durableObjectFilter "{\"datetimeHour_geq\": \$startDate, \"datetimeHour_leq\": \$endDate}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --arg filter "{\"datetime_geq\": \"$startDate\", \"datetime_leq\": \"$endDate\"}" --arg overviewFilter "{\"datetime_geq\": \"$startDate\", \"datetime_leq\": \"$endDate\"}" --arg durableObjectFilter "{\"datetimeHour_geq\": \"$startDate\", \"datetimeHour_leq\": \"$endDate\"}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
 
           echo "Cloudflare API Response: $RESPONSE"
 

@@ -1,4 +1,6 @@
-name: Cloudflare API Usage
+# Đây là một ghi chú cho toàn bộ tệp YAML
+
+name: Cloudflare API Usage # Đây là ghi chú cho một dòng cụ thể
 
 on:
   schedule:
@@ -6,38 +8,40 @@ on:
     - cron: '0 19 * * *'  # Chạy cron job vào lúc 19:00 mỗi ngày
     - cron: '0 20 * * *'  # Chạy cron job vào lúc 20:00 mỗi ngày
     - cron: '0 22 * * *'  # Chạy cron job vào lúc 22:00 mỗi ngày
-  workflow_dispatch:
+  workflow_dispatch:  # Kích hoạt workflow bằng cách thủ công
 
 jobs:
   query-and-send:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Sử dụng môi trường Ubuntu mới nhất
 
     env:
-      API_EMAIL: ${{ secrets.API_EMAIL }}
-      API_KEY: ${{ secrets.API_KEY }}
-      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
-      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      CHAT_ID: ${{ secrets.CHAT_ID }}
-      DAILY_LIMIT: 100000
+      API_EMAIL: ${{ secrets.API_EMAIL }}  # Email API từ secrets
+      API_KEY: ${{ secrets.API_KEY }}  # API key từ secrets
+      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}  # ID tài khoản từ secrets
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # Token bot từ secrets
+      CHAT_ID: ${{ secrets.CHAT_ID }}  # ID chat từ secrets
+      DAILY_LIMIT: 100000  # Giới hạn hàng ngày cho các yêu cầu
 
     steps:
-      - name: Check out the repository
+      - name: Check out the repository  # Bước checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js 20  # Cài đặt Node.js phiên bản 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install jq
+      - name: Install jq  # Cài đặt jq để xử lý JSON
         run: sudo apt-get install -y jq
 
-      - name: Query Cloudflare API and Send Telegram Message
+      - name: Query Cloudflare API and Send Telegram Message  # Truy vấn API và gửi tin nhắn Telegram
         run: |
+          # Lấy ngày giờ hiện tại
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           START_DATE=$(echo $DATE | sed 's/T.*//')T00:00:00.000Z
           END_DATE=$(echo $DATE)
 
+          # Định nghĩa query GraphQL
           QUERY='query getBillingMetrics($accountTag: String!, $filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, $overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
             viewer {
               accounts(filter: {accountTag: $accountTag}) {
@@ -78,6 +82,7 @@ jobs:
             }
           }'
 
+          # Gửi request tới Cloudflare API
           RESPONSE=$(curl -s -X POST 'https://api.cloudflare.com/client/v4/graphql' \
             -H 'Content-Type: application/json' \
             -H "X-Auth-Email: $API_EMAIL" \
@@ -92,30 +97,37 @@ jobs:
               --arg query "$QUERY" \
               '{query: $query, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
 
-          echo "Cloudflare API Response: $RESPONSE"
+          echo "Cloudflare API Response: $RESPONSE"  # In ra phản hồi từ Cloudflare API
 
+          # Kiểm tra xem có dữ liệu tài khoản không
           if [ "$(echo $RESPONSE | jq -r '.data.viewer.accounts | length')" -eq 0 ]; then
             echo "No accounts data found. Please check your ACCOUNT_ID."
             exit 1
           fi
 
+          # Lấy số lượng requests
           REQUESTS=$(echo $RESPONSE | jq '.data.viewer.accounts[0].workersInvocationsAdaptive[0].sum.requests // 0')
           if [ "$REQUESTS" == "null" ]; then
             echo "No request data found. Please check your query and ensure there is data in the specified time range."
             exit 1
           fi
 
+          # Tính phần trăm sử dụng
           USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)
 
+          # Định dạng ngày giờ và tin nhắn
           FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")
-          MESSAGE="Dữ liệu truy vấn lúc: $FORMATTED_DATE\nSố lượng truy vấn: $REQUESTS / $DAILY_LIMIT\nPhần trăm sử dụng: $USAGE_PERCENTAGE%"
+          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n🚦 Số lượng truy vấn: %d / %d\n🧮 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
+          ENCODED_MESSAGE=$(echo "$MESSAGE" | jq -sRr @uri)
 
+          # Gửi tin nhắn tới Telegram
           TELEGRAM_RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-            -d "chat_id=$CHAT_ID&text=$MESSAGE")
+            -d "chat_id=$CHAT_ID&text=$ENCODED_MESSAGE")
 
+          # Kiểm tra phản hồi từ Telegram
           if [ "$(echo $TELEGRAM_RESPONSE | jq -r '.ok')" != "true" ]; then
             echo "Failed to send Telegram message."
             exit 1
           fi
 
-          echo "Message sent successfully!"
+          echo "Message sent successfully!"  # In ra thông báo gửi tin nhắn thành công

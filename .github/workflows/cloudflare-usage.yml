@@ -22,16 +22,18 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4  # Cập nhật để dùng Node.js 20
+        uses: actions/checkout@v4
 
       - name: Set up Node.js 20
-        uses: actions/setup-node@v4  # Cập nhật để dùng Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Query Cloudflare API and Send Telegram Message
         run: |
-          DAILY_LIMIT=$((DAILY_LIMIT))
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           START_DATE=$(echo $DATE | sed 's/T.*//')T00:00:00.000Z
           END_DATE=$(echo $DATE)

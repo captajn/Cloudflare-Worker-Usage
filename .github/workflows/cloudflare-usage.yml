@@ -82,7 +82,15 @@ jobs:
             -H 'Content-Type: application/json' \
             -H "X-Auth-Email: $API_EMAIL" \
             -H "X-Auth-Key: $API_KEY" \
-            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --arg filter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" --arg overviewFilter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" --arg durableObjectFilter "{\"datetimeHour_geq\": \"$START_DATE\", \"datetimeHour_leq\": \"$END_DATE\"}" --arg query "$QUERY" '{query: $query, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+            --data-raw "$(jq -n \
+              --arg accountTag "$ACCOUNT_ID" \
+              --arg startDate "$START_DATE" \
+              --arg endDate "$END_DATE" \
+              --argjson filter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" \
+              --argjson overviewFilter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" \
+              --argjson durableObjectFilter "{\"datetimeHour_geq\": \"$START_DATE\", \"datetimeHour_leq\": \"$END_DATE\"}" \
+              --arg query "$QUERY" \
+              '{query: $query, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
 
           echo "Cloudflare API Response: $RESPONSE"
 

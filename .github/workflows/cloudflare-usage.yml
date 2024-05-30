@@ -1,0 +1,94 @@
+name: Cloudflare API Usage
+
+on:
+  schedule:
+    - cron: '0 19,20,22 * * *' # Chạy cron job vào các giờ 19:00, 20:00, 22:00 mỗi ngày
+  workflow_dispatch:
+
+jobs:
+  query-and-send:
+    runs-on: ubuntu-latest
+
+    env:
+      API_EMAIL: ${{ secrets.API_EMAIL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CHAT_ID: ${{ secrets.CHAT_ID }}
+      DAILY_LIMIT: 100000
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Query Cloudflare API and Send Telegram Message
+        run: |
+          DAILY_LIMIT=$((DAILY_LIMIT))
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          START_DATE=$(echo $DATE | sed 's/T.*//')T00:00:00.000Z
+          END_DATE=$(echo $DATE)
+
+          QUERY=$(cat <<EOF
+          query getBillingMetrics(\$accountTag: String!, \$filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, \$overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
+            viewer {
+              accounts(filter: {accountTag: \$accountTag}) {
+                workersInvocationsAdaptive(limit: 10000, filter: \$filter) {
+                  sum {
+                    duration
+                    requests
+                    subrequests
+                    responseBodySize
+                    errors
+                  }
+                  quantiles {
+                    cpuTimeP50
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: \$overviewFilter) {
+                  sum {
+                    cpuTimeUs
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                durableObjectsInvocationsAdaptiveGroups(limit: 10000, filter: \$durableObjectFilter) {
+                  sum {
+                    requests
+                  }
+                }
+                durableObjectsPeriodicGroups(limit: 10000, filter: \$durableObjectFilter) {
+                  sum {
+                    activeTime
+                  }
+                }
+              }
+            }
+          }
+          EOF
+          )
+
+          RESPONSE=$(curl -s -X POST 'https://api.cloudflare.com/client/v4/graphql' \
+            -H 'Content-Type: application/json' \
+            -H "X-Auth-Email: $API_EMAIL" \
+            -H "X-Auth-Key: $API_KEY" \
+            --data-raw "$(jq -n --arg accountTag "$ACCOUNT_ID" --arg startDate "$START_DATE" --arg endDate "$END_DATE" --argjson filter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson overviewFilter "{datetime_geq: \$startDate, datetime_leq: \$endDate}" --argjson durableObjectFilter "{datetimeHour_geq: \$startDate, datetimeHour_leq: \$endDate}" '{query: $QUERY, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+
+          REQUESTS=$(echo $RESPONSE | jq '.data.viewer.accounts[0].workersInvocationsAdaptive[0].sum.requests // 0')
+          USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)
+
+          FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")
+          MESSAGE="Dữ liệu truy vấn lúc: $FORMATTED_DATE\nSố lượng truy vấn: $REQUESTS / $DAILY_LIMIT\nPhần trăm sử dụng: $USAGE_PERCENTAGE%"
+
+          TELEGRAM_RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+            -d "chat_id=$CHAT_ID&text=$MESSAGE")
+
+          if [ "$(echo $TELEGRAM_RESPONSE | jq -r '.ok')" != "true" ]; then
+            echo "Failed to send Telegram message."
+            exit 1
+          fi
+
+          echo "Message sent successfully!"

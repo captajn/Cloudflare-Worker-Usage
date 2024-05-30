@@ -2,14 +2,7 @@ name: Cloudflare API Usage
 
 on:
   schedule:
-<<<<<<< HEAD
-    - cron: '50 1 * * *'  # Chạy cron job vào lúc 01:50 mỗi ngày
-=======
     - cron: '25 1 * * *'  # Chạy cron job vào lúc 01:25 mỗi ngày
->>>>>>> c57baa45c45407a417add3c2904caf38ff024d69
-    - cron: '0 10 * * *'  # Chạy cron job vào lúc 10:00 mỗi ngày
-    - cron: '0 17 * * *'  # Chạy cron job vào lúc 17:00 mỗi ngày
-    - cron: '0 22 * * *'  # Chạy cron job vào lúc 22:00 mỗi ngày
   workflow_dispatch:  # Kích hoạt workflow bằng cách thủ công
 
 jobs:
@@ -30,6 +23,10 @@ jobs:
 
       - name: Print current time  # In ra thời gian hiện tại của máy chủ
         run: date
+
+      - name: Print current time in Asia/Ho_Chi_Minh timezone  # In ra thời gian hiện tại theo múi giờ Asia/Ho_Chi_Minh
+        run: |
+          TZ=Asia/Ho_Chi_Minh date
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -115,7 +112,7 @@ jobs:
           USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)
 
           FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")
-          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n✅ Số lượng truy vấn: %d / %d\n💯 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
+          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n🚦 Số lượng truy vấn: %d / %d\n🧮 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
           ENCODED_MESSAGE=$(echo "$MESSAGE" | jq -sRr @uri)
 
           TELEGRAM_RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
@@ -126,21 +123,4 @@ jobs:
             exit 1
           fi
 
-<<<<<<< HEAD
           echo "Message sent successfully!"
-
-      - name: Send Animated Sticker
-        run: |
-          STICKER_FILE_ID="CAACAgIAAxkBAAEBF2Zg5N5xZZ9K6u3F3T4ZYO6i7m3zFAACVwADrWW8FPcX5vNQwq7HIAQ"
-          STICKER_RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendSticker" \
-            -d "chat_id=$CHAT_ID&sticker=$STICKER_FILE_ID")
-
-          if [ "$(echo $STICKER_RESPONSE | jq -r '.ok')" != "true" ]; then
-            echo "Failed to send Telegram sticker."
-            exit 1
-          fi
-
-          echo "Sticker sent successfully!"
-=======
-          echo "Message sent successfully!"  # In ra thông báo gửi tin nhắn thành công
->>>>>>> c57baa45c45407a417add3c2904caf38ff024d69

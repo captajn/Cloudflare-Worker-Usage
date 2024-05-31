@@ -31,9 +31,10 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 1. Fork repo này vào tài khoản của bạn
 2. Vào repository của bạn Settings - Secrets and variables - Action > Repository secrets
 3. Tạo 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
-4. Hình minh hoạ
-![Tạo biến và bảo mật](images/github-action.png)
-5. Chạy Github Action > Cloudflare API Usage nếu dùng 1 tài khoản, chạy Multi Account nếu dùng 2 tài khoản
+4. Tạo thêm 3 cái Repository secrets: API_EMAIL2, API_KEY2, ACCOUNT_ID2 nếu dùng Multi Cloudflare API Usage
+5. Hình minh hoạ
+![Tạo biến và bảo mật](images/multi-action.png)
+6. Chạy Github Action và tận hưởng
 
 ## English
 

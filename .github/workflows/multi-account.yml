@@ -1,4 +1,4 @@
-name: Cloudflare API Usage
+name: Multi Account Cloudflare API Usage
 
 on:
   schedule:

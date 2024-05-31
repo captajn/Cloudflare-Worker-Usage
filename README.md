@@ -14,7 +14,7 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 4. Chọn Worker đã tạo, vào mục Setting > Variable name tạo 5 biến tên API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID và điền các giá trị vào. Nhớ click nút Encrypt(bảo mật)
 5. Nếu dùng file json nhiều account thì tạo thêm 3 biến tên API_EMAIL2, API_KEY2, ACCOUNT_ID2
 6. Hình minh hoạ
-![Tạo biến và bảo mật](images/encrypt-variable.png)
+![Tạo biến và bảo mật](images/multi-encrypt-variable.png)
 
 ### Đối với file PHP
 1. Cài đặt php 8.1+curl+Nginx trên VPS nếu bạn chưa có. Hosting linux thường hỗ trợ sẵn php+webserver nên không cần cài.
@@ -48,7 +48,7 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 4. On name Worker you created, click Settings - Variable - Environment Variables, create 5 variables named API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID and fill in the Value column. Remember click button Encrypt
 5. If you use multi-account.json, remember create more 3 Environment Variables: API_EMAIL2, API_KEY2, ACCOUNT_ID2
 6. Variable và Encrypt
-![Setup Variable và Encrypt](images/encrypt-variable.png)
+![Setup Variable và Encrypt](images/multi-encrypt-variable.png)
 
 ### With JSON
 1. Use cloudflare.json if you only use 1 account Cloudflare, use file multi-account.json if you want to use with many accounts cloudflare

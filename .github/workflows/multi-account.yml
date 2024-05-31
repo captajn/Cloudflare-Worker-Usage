@@ -1,4 +1,4 @@
-name: Multi Account Cloudflare API Usage
+name: Cloudflare API Usage
 
 on:
   schedule:
@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      API_EMAIL1: ${{ secrets.API_EMAIL1 }}
-      API_KEY1: ${{ secrets.API_KEY1 }}
-      ACCOUNT_ID1: ${{ secrets.ACCOUNT_ID1 }}
+      API_EMAIL: ${{ secrets.API_EMAIL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
       API_EMAIL2: ${{ secrets.API_EMAIL2 }}
       API_KEY2: ${{ secrets.API_KEY2 }}
       ACCOUNT_ID2: ${{ secrets.ACCOUNT_ID2 }}
@@ -108,7 +108,7 @@ jobs:
                 '{query: $query, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')"
           }
 
-          RESPONSE1=$(query_cloudflare $API_EMAIL1 $API_KEY1 $ACCOUNT_ID1)
+          RESPONSE1=$(query_cloudflare $API_EMAIL $API_KEY $ACCOUNT_ID)
           RESPONSE2=$(query_cloudflare $API_EMAIL2 $API_KEY2 $ACCOUNT_ID2)
 
           echo "Cloudflare API Response 1: $RESPONSE1"
@@ -132,7 +132,7 @@ jobs:
             echo $requests
           }
 
-          REQUESTS1=$(check_response "$RESPONSE1" "$ACCOUNT_ID1")
+          REQUESTS1=$(check_response "$RESPONSE1" "$ACCOUNT_ID")
           REQUESTS2=$(check_response "$RESPONSE2" "$ACCOUNT_ID2")
 
           USAGE_PERCENTAGE1=$(echo "scale=2; ($REQUESTS1 / $DAILY_LIMIT) * 100" | bc)

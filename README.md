@@ -21,8 +21,9 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 3. Mở trình duyệt của bạn và truy cập file theo dạng ip/cloudflare.php hoặc tên miền abc.com/cloudflare.php
 
 ### Đối với file json
-1. Sao chép toàn bộ tập tin json và dán vào worker bạn vừa tạo ở trên
-2. Mở trình duyệt bằng url worker của bạn và tận hưởng
+1. Sao chép toàn bộ tập tin cloudflare.json nếu bạn chỉ dùng 1 account Cloudflare, dùng file multi-account.json nếu muốn truy vấn nhiều account
+2. Copy toàn bộ nội dung file .json và dán vào worker của bạn
+3. Mở trình duyệt bằng url worker của bạn và tận hưởng
 
 ### Chạy với Github Action
 1. Fork repo này vào tài khoản của bạn
@@ -46,7 +47,8 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 ![Setup Variable và Encrypt](images/encrypt-variable.png)
 
 ### With JSON
-1. Copy the cloudflare.json file and paste to your Cloudflare Worker
+1. Use cloudflare.json if you only use 1 account Cloudflare, use file multi-account.json if you want to use with many accounts cloudflare
+1. Copy the file .json and paste to your Cloudflare Worker
 2. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ### With PHP

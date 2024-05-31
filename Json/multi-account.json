@@ -1,0 +1,324 @@
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+const dailyLimit = 100000; // Giới hạn hàng ngày cố định
+const sendTimes = ['Gửi Ngay', '19:00', '20:00', '22:00']; // Thời gian gửi trong ngày (giờ phút)
+
+const ACCOUNTS = [
+  {
+    email: API_EMAIL,
+    key: API_KEY,
+    id: ACCOUNT_ID,
+  },
+  {
+    email: API_EMAIL2,
+    key: API_KEY2,
+    id: ACCOUNT_ID2,
+  },
+];
+
+async function handleRequest(request) {
+  try {
+    const BOT_TOKEN = globalThis.BOT_TOKEN;
+    const CHAT_ID = globalThis.CHAT_ID;
+
+    if (request.method === 'POST') {
+      const formData = await request.formData();
+
+      if (formData.get('action') === 'query' || formData.get('action') === 'send_telegram') {
+        const date = new Date();
+        const startDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z';
+        const endDate = date.toISOString().split('.')[0] + '.000Z';
+
+        const filter = {
+          datetime_geq: startDate,
+          datetime_leq: endDate,
+        };
+
+        const overviewFilter = {
+          datetime_geq: startDate,
+          datetime_leq: endDate,
+        };
+
+        const durableObjectFilter = {
+          datetimeHour_geq: startDate,
+          datetimeHour_leq: endDate,
+        };
+
+        const query = `
+          query getBillingMetrics($accountTag: String!, $filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, $overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject, $durableObjectFilter: AccountDurableObjectsInvocationsAdaptiveHourlyGroupsFilter_InputObject) {
+            viewer {
+              accounts(filter: {accountTag: $accountTag}) {
+                workersInvocationsAdaptive(limit: 10000, filter: $filter) {
+                  sum {
+                    duration
+                    requests
+                    subrequests
+                    responseBodySize
+                    errors
+                  }
+                  quantiles {
+                    cpuTimeP50
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: $overviewFilter) {
+                  sum {
+                    cpuTimeUs
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                durableObjectsInvocationsAdaptiveGroups(limit: 10000, filter: $durableObjectFilter) {
+                  sum {
+                    requests
+                  }
+                }
+                durableObjectsPeriodicGroups(limit: 10000, filter: $durableObjectFilter) {
+                  sum {
+                    activeTime
+                  }
+                }
+              }
+            }
+          }`;
+
+        let allResults = [];
+
+        for (const account of ACCOUNTS) {
+          const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Auth-Email': account.email,
+              'X-Auth-Key': account.key,
+            },
+            body: JSON.stringify({
+              query: query,
+              variables: {
+                accountTag: account.id,
+                filter: filter,
+                overviewFilter: overviewFilter,
+                durableObjectFilter: durableObjectFilter,
+              },
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.errors) {
+            throw new Error(data.errors[0].message);
+          }
+
+          const accountData = data.data.viewer.accounts[0];
+
+          const requests = accountData.workersInvocationsAdaptive[0]?.sum?.requests || 0;
+          const usagePercentage = (requests / dailyLimit) * 100;
+
+          allResults.push({
+            email: account.email,
+            date,
+            requests,
+            dailyLimit,
+            usagePercentage,
+          });
+        }
+
+        if (formData.get('action') === 'query') {
+          return new Response(renderForm({ results: allResults }), {
+            headers: { 'Content-Type': 'text/html' },
+          });
+        } else if (formData.get('action') === 'send_telegram') {
+          const sendTime = formData.get('sendTime');
+          let telegramStatus = "";
+
+          const formattedDate = new Intl.DateTimeFormat('vi-VN', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(new Date());
+
+          const message = `Dữ liệu truy vấn lúc: ${formattedDate}\n` + allResults.map(result => 
+            `Tài khoản: ${result.email}\nSố lượng truy vấn: ${result.requests} / ${result.dailyLimit}\nPhần trăm sử dụng: ${result.usagePercentage.toFixed(2)}%\n`
+          ).join('\n');
+
+          if (sendTime === 'Gửi Ngay') {
+            const telegramResponse = await sendTelegramMessage(BOT_TOKEN, CHAT_ID, message);
+            if (!telegramResponse.success) {
+              throw new Error('Failed to send Telegram message.');
+            }
+            telegramStatus = 'Message sent successfully!';
+          } else {
+            // Handle scheduling logic here if needed
+            telegramStatus = `Message scheduled to send at ${sendTime}`;
+          }
+
+          return new Response(renderForm({ telegramStatus, results: allResults }), {
+            headers: { 'Content-Type': 'text/html' },
+          });
+        }
+      }
+    }
+
+    return new Response(renderForm(), {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  } catch (error) {
+    return new Response(`Error: ${error.message}`, { status: 500 });
+  }
+}
+
+function renderForm(data = {}) {
+  const { results, telegramStatus } = data;
+
+  const sendTimeOptions = sendTimes.map(time => `<option value="${time}">${time}</option>`).join('');
+
+  function obfuscate(value) {
+    if (value.length <= 4) return value;
+    return value.slice(0, 2) + '...' + value.slice(-2);
+  }
+
+  return `
+  <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cloudflare API Usage</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/minty/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .form-section {
+                margin-bottom: 30px;
+                padding: 20px;
+                border: 1px solid #dedede;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+
+            .form-section h2 {
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .usage-details {
+                margin-top: 20px;
+            }
+
+            .account-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .account-table th, .account-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .account-table th {
+                background-color: #f2f2f2;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h1 class="text-center">Cloudflare API Usage</h1>
+            
+            <form method="POST">
+                <div class="form-section">
+                    <h2>Truy Vấn</h2>
+                    <table class="account-table">
+                        <thead>
+                            <tr>
+                                <th>API Email</th>
+                                <th>API Key</th>
+                                <th>Account ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${ACCOUNTS.map((account, index) => `
+                                <tr>
+                                    <td>${obfuscate(account.email)}</td>
+                                    <td>${obfuscate(account.key)}</td>
+                                    <td>${obfuscate(account.id)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <input type="hidden" name="action" value="query">
+                    <button type="submit" class="btn btn-primary" name="query">Truy Vấn</button>
+                </div>
+            </form>
+
+            ${results ? results.map(result => `
+              <div class="mt-4 usage-details">
+                  <h3>Kết quả cho tài khoản: ${obfuscate(result.email)}</h3>
+                  <strong>Dữ liệu truy vấn lúc:</strong> ${new Intl.DateTimeFormat('vi-VN', {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  }).format(result.date)}<br>
+                  <strong>Số lượng truy vấn:</strong> ${result.requests} / ${result.dailyLimit}<br>
+                  <strong>Phần trăm sử dụng:</strong> ${result.usagePercentage.toFixed(2)}%
+              </div>
+            `).join('') : ''}
+
+            <form method="POST">
+                <div class="form-section">
+                    <h2>Send Telegram</h2>
+                    <div class="form-group">
+                        <label for="sendTime">Chọn khung giờ gửi</label>
+                        <select class="form-control" id="sendTime" name="sendTime">
+                            ${sendTimeOptions}
+                        </select>
+                    </div>
+                    <input type="hidden" name="action" value="send_telegram">
+                    <button type="submit" class="btn btn-info">Send Telegram</button>
+                </div>
+                ${telegramStatus ? `<div class="alert alert-success mt-4">${telegramStatus}</div>` : ''}
+            </form>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+async function sendTelegramMessage(botToken, chatId, message) {
+  const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const params = new URLSearchParams({ chat_id: chatId, text: message });
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      console.error(`Telegram API error: ${result.description}`);
+      return { success: false, error: result.description };
+    }
+
+    return { success: true, result };
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}

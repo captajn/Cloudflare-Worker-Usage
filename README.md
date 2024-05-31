@@ -26,7 +26,7 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 1. Dùng file cloudflare.json nếu bạn chỉ dùng 1 account Cloudflare, dùng file multi-account.json nếu muốn truy vấn nhiều account
 2. Copy toàn bộ nội dung file .json và dán vào worker của bạn
 3. Mở trình duyệt bằng url worker của bạn và tận hưởng
-[![Tạo Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tina-hello/doh-cf-workers)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/captajn/Cloudflare-Worker-Usage)
 
 ### Chạy với Github Action
 1. Fork repo này vào tài khoản của bạn
@@ -54,7 +54,7 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 ### With JSON
 1. Use cloudflare.json if you only use 1 account Cloudflare, use file multi-account.json if you want to use with many accounts cloudflare
 2. Copy the file .json and paste to your Cloudflare Worker
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)]
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/captajn/Cloudflare-Worker-Usage)
 3. Open the browser with Cloudflare's automatic worker url once you've set the name and Deloy is done
 
 ### With PHP

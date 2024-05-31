@@ -26,7 +26,7 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 1. Dùng file cloudflare.json nếu bạn chỉ dùng 1 account Cloudflare, dùng file multi-account.json nếu muốn truy vấn nhiều account
 2. Copy toàn bộ nội dung file .json và dán vào worker của bạn
 3. Mở trình duyệt bằng url worker của bạn và tận hưởng
-[[Tạo Workers](https://deploy.workers.cloudflare.com/button)
+[![Tạo Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tina-hello/doh-cf-workers)
 
 ### Chạy với Github Action
 1. Fork repo này vào tài khoản của bạn

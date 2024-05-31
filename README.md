@@ -65,6 +65,7 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 1. Fork this repo to your account
 2. Enter your repository github - Settings - Secrets and variables - Action > Repository secrets
 3. Create 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
-4. Example
-![Tạo biến và bảo mật](images/github-action.png)
+4. If you run action Multi Cloudflare API Usage, remember create more 3 Repository secrets: API_EMAIL2, API_KEY2, ACCOUNT_ID2
+5. Example
+![Tạo biến và bảo mật](images/multi-action.png)
 5. Run Github Action > Cloudflare API Usage with 1 account Cloudflare, use Multi Cloudflare API Usage with 2 accounts

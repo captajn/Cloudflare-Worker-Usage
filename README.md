@@ -33,7 +33,7 @@ Code PHP/Json cho phép bạn truy vấn dung lượng request/ngày từ Cloudf
 3. Tạo 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
 4. Hình minh hoạ
 ![Tạo biến và bảo mật](images/github-action.png)
-5. Chạy Github Action > Cloudflare API Usage và tận hưởng
+5. Chạy Github Action > Cloudflare API Usage nếu dùng 1 tài khoản, chạy Multi Account nếu dùng 2 tài khoản
 
 ## English
 
@@ -67,4 +67,4 @@ PHP/Json code allows you to query request volume/day from Cloudflare. By default
 3. Create 5 Repository secrets: API_EMAIL, API_KEY, ACCOUNT_ID, BOT_TOKEN, CHAT_ID
 4. Example
 ![Tạo biến và bảo mật](images/github-action.png)
-5. Run Github Action > Cloudflare API Usage
+5. Run Github Action > Cloudflare API Usage with 1 account Cloudflare, use Multi Cloudflare API Usage with 2 accounts

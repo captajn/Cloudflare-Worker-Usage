@@ -1,10 +1,10 @@
 name: Cloudflare API Usage
 
 on:
-  schedule:
-    - cron: '0 10 * * *'  # Chạy cron job vào lúc 10:00 mỗi ngày
-    - cron: '0 17 * * *'  # Chạy cron job vào lúc 18:00 mỗi ngày
-    - cron: '0 22 * * *'  # Chạy cron job vào lúc 22:00 mỗi ngày
+  schedule: #Asia/Ho_Chi_Minh (UTC+7). Các thời gian 12:00, 18:00 và 22:00 theo giờ địa phương sẽ tương ứng với 5:00, 11:00 và 15:00 UTC
+    - cron: '0 5 * * *'  # Chạy cron job vào lúc 12:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
+    - cron: '0 11 * * *'  # Chạy cron job vào lúc 18:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
+    - cron: '0 15 * * *'  # Chạy cron job vào lúc 22:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
   workflow_dispatch:  # Kích hoạt workflow bằng cách thủ công
 
 jobs:

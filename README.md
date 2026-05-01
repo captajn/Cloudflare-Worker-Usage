@@ -11,7 +11,7 @@
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4?logo=telegram&logoColor=white)](https://core.telegram.org/bots)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-[🇻🇳 Tiếng Việt](#-tiếng-việt) · [🇺🇸 English](#-english) · [Quick Start](#-quick-start) · [Pitch](./PITCH.md)
+[🇻🇳 Tiếng Việt](#-tiếng-việt) · [🇺🇸 English](#-english) · [Quick Start](#-quick-start) · [Roadmap](#-roadmap)
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/captajn/Cloudflare-Worker-Usage)
 
@@ -69,8 +69,7 @@ Cloudflare-Worker-Usage/
 ├── LICENSE                    # MIT
 ├── CONTRIBUTING.md
 ├── SECURITY.md
-├── CHANGELOG.md
-└── PITCH.md                   # Project pitch (funding)
+└── CHANGELOG.md
 ```
 
 ---

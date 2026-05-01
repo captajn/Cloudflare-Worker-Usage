@@ -6,6 +6,9 @@
 wrangler.toml
 !wrangler.toml.example
 
+# Private docs — do not publish
+PITCH.md
+
 # OS
 .DS_Store
 Thumbs.db

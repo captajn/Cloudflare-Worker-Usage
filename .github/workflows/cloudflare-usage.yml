@@ -1,0 +1,128 @@
+name: Cloudflare API Usage
+
+on:
+  schedule: #Asia/Ho_Chi_Minh (UTC+7). Các thời gian 12:00, 18:00 và 22:00 theo giờ địa phương sẽ tương ứng với 5:00, 11:00 và 15:00 UTC
+    - cron: '0 5 * * *'  # Chạy cron job vào lúc 12:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
+    - cron: '0 11 * * *'  # Chạy cron job vào lúc 18:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
+    - cron: '0 15 * * *'  # Chạy cron job vào lúc 22:00 theo giờ Asia/Ho_Chi_Minh mỗi ngày
+  workflow_dispatch:  # Kích hoạt workflow bằng cách thủ công
+
+jobs:
+  query-and-send:
+    runs-on: ubuntu-latest
+
+    env:
+      API_EMAIL: ${{ secrets.API_EMAIL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CHAT_ID: ${{ secrets.CHAT_ID }}
+      DAILY_LIMIT: 100000
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Print current time  # In ra thời gian hiện tại của máy chủ
+        run: date
+
+      - name: Print current time in Asia/Ho_Chi_Minh timezone  # In ra thời gian hiện tại theo múi giờ Asia/Ho_Chi_Minh
+        run: |
+          TZ=Asia/Ho_Chi_Minh date
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Query Cloudflare API and Send Telegram Message
+        run: |
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          START_DATE=$(echo $DATE | sed 's/T.*//')T00:00:00.000Z
+          END_DATE=$(echo $DATE)
+
+          QUERY='query getBillingMetrics($accountTag: String!, $filter: AccountWorkersInvocationsAdaptiveFilter_InputObject, $overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
+            viewer {
+              accounts(filter: {accountTag: $accountTag}) {
+                workersInvocationsAdaptive(limit: 10000, filter: $filter) {
+                  sum {
+                    duration
+                    requests
+                    subrequests
+                    responseBodySize
+                    errors
+                  }
+                  quantiles {
+                    cpuTimeP50
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: $overviewFilter) {
+                  sum {
+                    cpuTimeUs
+                  }
+                  dimensions {
+                    usageModel
+                  }
+                }
+                durableObjectsInvocationsAdaptiveGroups(limit: 10000, filter: $durableObjectFilter) {
+                  sum {
+                    requests
+                  }
+                }
+                durableObjectsPeriodicGroups(limit: 10000, filter: $durableObjectFilter) {
+                  sum {
+                    activeTime
+                  }
+                }
+              }
+            }
+          }'
+
+          RESPONSE=$(curl -s -X POST 'https://api.cloudflare.com/client/v4/graphql' \
+            -H 'Content-Type: application/json' \
+            -H "X-Auth-Email: $API_EMAIL" \
+            -H "X-Auth-Key: $API_KEY" \
+            --data-raw "$(jq -n \
+              --arg accountTag "$ACCOUNT_ID" \
+              --arg startDate "$START_DATE" \
+              --arg endDate "$END_DATE" \
+              --argjson filter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" \
+              --argjson overviewFilter "{\"datetime_geq\": \"$START_DATE\", \"datetime_leq\": \"$END_DATE\"}" \
+              --argjson durableObjectFilter "{\"datetimeHour_geq\": \"$START_DATE\", \"datetimeHour_leq\": \"$END_DATE\"}" \
+              --arg query "$QUERY" \
+              '{query: $query, variables: {accountTag: $accountTag, filter: $filter, overviewFilter: $overviewFilter, durableObjectFilter: $durableObjectFilter}}')")
+
+          echo "Cloudflare API Response: $RESPONSE"
+
+          if [ "$(echo $RESPONSE | jq -r '.data.viewer.accounts | length')" -eq 0 ]; then
+            echo "No accounts data found. Please check your ACCOUNT_ID."
+            exit 1
+          fi
+
+          REQUESTS=$(echo $RESPONSE | jq '.data.viewer.accounts[0].workersInvocationsAdaptive[0].sum.requests // 0')
+          if [ "$REQUESTS" == "null" ]; then
+            echo "No request data found. Please check your query and ensure there is data in the specified time range."
+            exit 1
+          fi
+
+          USAGE_PERCENTAGE=$(echo "scale=2; ($REQUESTS / $DAILY_LIMIT) * 100" | bc)
+
+          FORMATTED_DATE=$(TZ=Asia/Ho_Chi_Minh date +"%d-%m-%Y %H:%M:%S")
+          MESSAGE=$(printf "⏰ Thông báo lúc: %s\n👉 Số lượng truy vấn: %d / %d\n🧮 Phần trăm sử dụng: %.2f%%" "$FORMATTED_DATE" "$REQUESTS" "$DAILY_LIMIT" "$USAGE_PERCENTAGE")
+          ENCODED_MESSAGE=$(echo "$MESSAGE" | jq -sRr @uri)
+
+          TELEGRAM_RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+            -d "chat_id=$CHAT_ID&text=$ENCODED_MESSAGE")
+
+          if [ "$(echo $TELEGRAM_RESPONSE | jq -r '.ok')" != "true" ]; then
+            echo "Failed to send Telegram message."
+            exit 1
+          fi
+
+          echo "Message sent successfully!"

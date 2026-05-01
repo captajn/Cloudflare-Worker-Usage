@@ -1,0 +1,9 @@
+{
+  "//": "File Json/*.json thực chất là mã JavaScript Cloudflare Workers (addEventListener, v.v.)",
+  "//_2": "Đặt file association để VS Code không parse chúng như JSON và báo lỗi sai.",
+  "files.associations": {
+    "Json/cloudflare.json": "javascript",
+    "Json/multi-account.json": "javascript"
+  },
+  "json.schemas": []
+}

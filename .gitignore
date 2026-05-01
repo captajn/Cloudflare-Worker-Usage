@@ -1,0 +1,45 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+.dev.vars
+wrangler.toml
+!wrangler.toml.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (nếu có bổ sung tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# PHP
+vendor/
+composer.lock
+
+# Wrangler
+.wrangler/
+.cloudflare/
+
+# Logs
+*.log
+logs/
+
+# Build output
+dist/
+build/

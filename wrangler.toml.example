@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────
+# Wrangler CLI config — Cloudflare Workers deployment
+# ─────────────────────────────────────────────────────────────
+# Copy thành `wrangler.toml` và chỉnh theo account của bạn:
+#   cp wrangler.toml.example wrangler.toml
+#
+# Sau đó set secrets (không commit):
+#   wrangler secret put API_EMAIL
+#   wrangler secret put API_KEY
+#   wrangler secret put ACCOUNT_ID
+#   wrangler secret put BOT_TOKEN
+#   wrangler secret put CHAT_ID
+#
+# Deploy:
+#   wrangler deploy
+# ─────────────────────────────────────────────────────────────
+
+name = "cloudflare-worker-usage"
+main = "Json/cloudflare.json"            # Đổi thành "Json/multi-account.json" nếu multi-account
+compatibility_date = "2024-10-01"
+workers_dev = true
+
+# --- Public (non-secret) variables ---
+# [vars]
+# DAILY_LIMIT = "100000"
+
+# --- Secrets (KHÔNG điền vào file này) ---
+# Set qua CLI: `wrangler secret put <NAME>`
+# Các secret cần có:
+#   - API_EMAIL
+#   - API_KEY
+#   - ACCOUNT_ID
+#   - BOT_TOKEN
+#   - CHAT_ID
+#   (multi-account: thêm API_EMAIL2, API_KEY2, ACCOUNT_ID2)
+
+# --- Cron trigger (tuỳ chọn, nếu muốn Worker tự gọi mình theo lịch) ---
+# [triggers]
+# crons = ["0 5 * * *", "0 11 * * *", "0 15 * * *"]  # UTC — tương đương 12h/18h/22h VN
